@@ -1,0 +1,18 @@
+sudo: false
+dist: trusty
+language: generic
+script: make
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_d6626e7dbf67_key -iv $encrypted_d6626e7dbf67_iv -in signing.key.enc -out signing.key -d
+- make deploy
+deploy:
+  provider: releases
+  api_key:
+    secure: UjmtpIv60N31xzgGqWuTwEvvUJDBuM46FrLqPLkpKeliL+f8ZA1flOSdMwbFhY4jAH5KOO4pwRZsJMYMj+jkh13LIv8d4Je465woAe8Xtj+kmYukpH1oZ4jEDFl60UXCqM4xCX2cGMZCUmUprrEDMkwDZT3Bwmt2MZaAqR6CWau0N16X1R0aAy5rEZ4VtCSxoqZNT7kM7LDkz42CW1m3uAa19BOKQ7TvtZkk1YvX1bFRPyOOLbrOrcUCx/ysuP1oTgRW2Fo0DGErUc9T8pxpA8S3vmP+9gyzEqUXgPKkV/LN2UhQXEbb0YkoMLPPmtvdViuZNidB2MtubjotLvvAeYU+3DRnthkaGchkn5oTkFLc+QVnXgIiouLKP2qaOXTSb+dd+uqsMKjuhlP8n5a7nr8fRBBMUwhRrsYyMub9Pvy09azwKNfWZAWTujRnUHrIDFK84LevPDBfSGnIgd1Uo2hKCBD956jt5kFrNhw32bjD8SGu9FIZ67uJBdnSQ1jy7FVd8om5NNtlFhYZSRIjhTNBDjXiGFN8//Glo0/YvRVEZRYw8RMHxTePTDouXHB9qNG4cQqp2dDRPJAM3mb3HSsJbynDBsTCYcucac+4G6KCExFVWDVhkuCKvDfJYkgaC2mCR7ec+c1OE98QEW9TkFBoSHefKQ5R7XcZPYVZOA
+  file:
+    - dist/dit4c-imageserver-filesystem.linux.amd64.aci
+    - dist/dit4c-imageserver-filesystem.linux.amd64.aci.asc
+  on:
+    tags: true
+    repo: dit4c/dit4c-imageserver-filesystem
+  skip_cleanup: true
