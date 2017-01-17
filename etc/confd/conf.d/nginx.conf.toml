@@ -7,4 +7,6 @@ mode = "0644"
 keys = [
   "/nameservers",
   "/portal/uri",
+  "/tls/cert",
+  "/tls/key",
 ]

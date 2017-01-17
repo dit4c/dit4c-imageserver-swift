@@ -57,6 +57,8 @@ ${TARGET_IMAGE}: ${ACBUILD} ${NGINX_ACI} ${CONFD} etc start.sh | ${OUT_DIR}
 	sudo ${ACBUILD} --debug set-name ${NAME}
 	sudo ${ACBUILD} --debug environment add PORTAL_URI https://dit4c.net
 	sudo ${ACBUILD} --debug mount add data /data
+	sudo ${ACBUILD} --debug port add http tcp 80
+	sudo ${ACBUILD} --debug port add https tcp 443
 	sudo ${ACBUILD} --debug write --overwrite $@
 	sudo ${ACBUILD} --debug end
 	sudo chown $(shell id -u):$(shell id -g) $@
