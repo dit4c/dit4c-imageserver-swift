@@ -1,0 +1,8 @@
+#!/bin/sh
+
+export NAMESERVERS=$(cat /etc/resolv.conf | grep nameserver | cut -d' ' -f 2 | xargs echo)
+
+while true; do
+  echo "Updating keystone token for $OS_USERNAME"
+  with_os_auth_token confd -log-level info -onetime -backend env && sleep 3600
+done

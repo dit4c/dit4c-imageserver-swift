@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Create default config if none exists yet
+test -f /tmp/nginx.conf || cat > /tmp/nginx.conf <<DEFAULT_CONF
+user  nginx;
+worker_processes  1;
+error_log  stderr info;
+events {}
+DEFAULT_CONF
+
+nginx -g "daemon off;" -c /tmp/nginx.conf

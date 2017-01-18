@@ -1,13 +1,13 @@
-.DEFAULT_GOAL = all
-.PHONY = clean all deploy
+.DEFAULT_GOAL=all
+.PHONY=clean all deploy
 
-NAME=dit4c-imageserver-filesystem
-BASE_DIR = .
-BUILD_DIR = ${BASE_DIR}/build
-OUT_DIR = ${BASE_DIR}/dist
-TARGET_IMAGE = ${OUT_DIR}/${NAME}.linux.amd64.aci
+NAME=dit4c-imageserver-swift
+BASE_DIR=.
+BUILD_DIR=${BASE_DIR}/build
+OUT_DIR=${BASE_DIR}/dist
+TARGET_IMAGE=${OUT_DIR}/${NAME}.linux.amd64.aci
 
-MKDIR_P = mkdir -p
+MKDIR_P="mkdir -p"
 GPG=gpg2
 
 NGINX_DOCKER_IMAGE=nginx:alpine
@@ -24,6 +24,8 @@ DOCKER2ACI_URL=https://github.com/appc/docker2aci/releases/download/v${DOCKER2AC
 CONFD=${BUILD_DIR}/confd
 CONFD_VERSION=0.11.0
 CONFD_URL=https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-linux-amd64
+
+ETC_FILES=$(shell find ${BASE_DIR}/etc)
 
 ${BUILD_DIR}:
 	${MKDIR_P} ${BUILD_DIR}
@@ -47,16 +49,21 @@ ${CONFD}: | ${BUILD_DIR}
 ${NGINX_ACI}: ${DOCKER2ACI}
 	cd ${BUILD_DIR} && ../${DOCKER2ACI} docker://${NGINX_DOCKER_IMAGE}
 
-${TARGET_IMAGE}: ${ACBUILD} ${NGINX_ACI} ${CONFD} etc start.sh | ${OUT_DIR}
+${TARGET_IMAGE}: ${ACBUILD} ${NGINX_ACI} ${CONFD} ${ETC_FILES} with_os_auth_token.sh | ${OUT_DIR}
 	sudo rm -rf .acbuild
 	sudo ${ACBUILD} --debug begin ${NGINX_ACI}
+	sudo sh -c 'PATH=${shell echo $$PATH}:${BUILD_DIR} ${ACBUILD} --debug run --engine chroot -- sh -c "apk update && apk add curl jq s6 && rm -rf /var/cache/apk/*"'
 	sudo ${ACBUILD} --debug copy ${CONFD} /usr/local/bin/confd
-	sudo ${ACBUILD} --debug copy-to-dir etc/confd /etc
-	sudo ${ACBUILD} --debug copy start.sh /start
-	sudo ${ACBUILD} --debug set-exec /start
+	sudo ${ACBUILD} --debug copy-to-dir etc/confd etc/services.d /etc
+	sudo ${ACBUILD} --debug copy with_os_auth_token.sh /usr/local/bin/with_os_auth_token
+	sudo ${ACBUILD} --debug set-exec -- /bin/s6-svscan /etc/services.d
 	sudo ${ACBUILD} --debug set-name ${NAME}
+	sudo ${ACBUILD} --debug environment add OS_AUTH_URL https://your.openstack.auth.service.example/v2.0/
+	sudo ${ACBUILD} --debug environment add OS_TENANT_NAME YourOpenStackTenant
+	sudo ${ACBUILD} --debug environment add OS_USERNAME YourOpenStackUsername
+	sudo ${ACBUILD} --debug environment add OS_PASSWORD YourOpenStackPassword
 	sudo ${ACBUILD} --debug environment add PORTAL_URI https://dit4c.net
-	sudo ${ACBUILD} --debug mount add data /data
+	sudo ${ACBUILD} --debug environment add SWIFT_CONTAINER_URL https://your.openstack.swift.service.example/v1/AUTH_deadbeefcafea1fa/image-container
 	sudo ${ACBUILD} --debug port add http tcp 80
 	sudo ${ACBUILD} --debug port add https tcp 443
 	sudo ${ACBUILD} --debug write --overwrite $@

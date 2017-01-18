@@ -1,6 +1,6 @@
 [template]
 src = "nginx.conf.tmpl"
-dest = "/etc/nginx/nginx.conf"
+dest = "/tmp/nginx.conf"
 uid = 0
 gid = 0
 mode = "0644"
@@ -9,4 +9,8 @@ keys = [
   "/portal/uri",
   "/tls/cert",
   "/tls/key",
+  "/os/token",
+  "/swift/container/url",
 ]
+check_cmd = "/usr/sbin/nginx -t -c {{.src}}"
+reload_cmd = "/usr/sbin/nginx -s reload"
