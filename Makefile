@@ -52,7 +52,7 @@ ${NGINX_ACI}: ${DOCKER2ACI}
 ${TARGET_IMAGE}: ${ACBUILD} ${NGINX_ACI} ${CONFD} ${ETC_FILES} with_os_auth_token.sh | ${OUT_DIR}
 	sudo rm -rf .acbuild
 	sudo ${ACBUILD} --debug begin ${NGINX_ACI}
-	sudo sh -c 'PATH=${shell echo $$PATH}:${BUILD_DIR} ${ACBUILD} --debug run --engine chroot -- sh -c "apk update && apk add curl jq s6 && rm -rf /var/cache/apk/*"'
+	sudo sh -c 'PATH=${shell echo $$PATH}:${BUILD_DIR} ${ACBUILD} --debug run --engine chroot -- sh -c "rm /etc/resolv.conf && echo nameserver 8.8.8.8 > /etc/resolv.conf && apk update && apk add curl jq s6 && rm -rf /var/cache/apk/* && rm -f /etc/resolv.conf"'
 	sudo ${ACBUILD} --debug copy ${CONFD} /usr/local/bin/confd
 	sudo ${ACBUILD} --debug copy-to-dir etc/confd etc/services.d /etc
 	sudo ${ACBUILD} --debug copy with_os_auth_token.sh /usr/local/bin/with_os_auth_token
