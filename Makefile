@@ -7,7 +7,7 @@ BUILD_DIR=${BASE_DIR}/build
 OUT_DIR=${BASE_DIR}/dist
 TARGET_IMAGE=${OUT_DIR}/${NAME}.linux.amd64.aci
 
-MKDIR_P="mkdir -p"
+MKDIR_P=mkdir -p
 GPG=gpg2
 
 NGINX_DOCKER_IMAGE=nginx:alpine
