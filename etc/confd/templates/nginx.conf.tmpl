@@ -38,6 +38,8 @@ http {
         proxy_pass {{getv "/swift/container/url"}}$request_uri;
         proxy_set_header X-Auth-Token {{getv "/os/token"}};
         proxy_set_header Connection "close";
+        proxy_set_header If-None-Match $http_if_none_match;
+        proxy_set_header If-Modified-Since $http_if_modified_since;
       }
 
       location /auth {
